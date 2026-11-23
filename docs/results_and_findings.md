@@ -124,12 +124,12 @@ Cluster `C1` consistently captures an adverse multi-system cardiometabolic pheno
 ### 3.4 NHANES Complex Survey-Weighted Sensitivity Analysis (`WTSAFPRP` / `SDMVSTRA` / `SDMVPSU`)
 Applying CDC fasting subsample weights (`WTSAFPRP`) and Taylor-series linearized variance estimation across masked variance strata (`SDMVSTRA`) and primary sampling units (`SDMVPSU`) confirms that unweighted test-set prevalence slightly overestimates the high-risk cluster share (reflecting NHANES oversampling of older and minority subpopulations), while preserving substantive clinical stratification:
 
-| Model | Phenotype Cluster | Unweighted Test $n$ ($\%$) | Survey-Weighted National Prevalence ($\%$) | Linearized SE ($\%$) | Weighted $95\%$ Confidence Interval |
+| Model | Phenotype Cluster | Unweighted Test $n$ (%) | Survey-Weighted National Prevalence (%) | Linearized SE (%) | Weighted 95% Confidence Interval |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **k-Means (`k=2`)** | `C0` (Lower Risk) | $566$ ($53.65\%$) | **$58.73\%$** | $2.03\%$ | $[54.74\%, 62.71\%]$ |
-| **k-Means (`k=2`)** | `C1` (Adiposity/Low-HDL Risk) | $489$ ($46.35\%$) | **$41.27\%$** | $2.03\%$ | $[37.29\%, 45.26\%]$ |
-| **GMM (`k=2`)** | `C0` (Cardiometabolically Healthy) | $832$ ($78.86\%$) | **$83.47\%$** | $1.76\%$ | $[80.01\%, 86.92\%]$ |
-| **GMM (`k=2`)** | `C1` (Severe Cardiometabolic Endotype) | $223$ ($21.14\%$) | **$16.53\%$** | $1.76\%$ | $[13.08\%, 19.99\%]$ |
+| **k-Means (`k=2`)** | `C0` (Lower Risk) | 566 (53.65%) | **58.73%** | 2.03% | [54.74%, 62.71%] |
+| **k-Means (`k=2`)** | `C1` (Adiposity/Low-HDL Risk) | 489 (46.35%) | **41.27%** | 2.03% | [37.29%, 45.26%] |
+| **GMM (`k=2`)** | `C0` (Cardiometabolically Healthy) | 832 (78.86%) | **83.47%** | 1.76% | [80.01%, 86.92%] |
+| **GMM (`k=2`)** | `C1` (Severe Cardiometabolic Endotype) | 223 (21.14%) | **16.53%** | 1.76% | [13.08%, 19.99%] |
 
 ---
 
