@@ -130,7 +130,9 @@ EXSU500_Team_25/
         ├── 01_prepare_cohort.py                <- Adult fasting filter (N=3,515), CDC survey weights, 70/30 split
         ├── 02_train_and_tune.py                <- 5-fold CV tuning across k=2..6 (k-Means, GMM, Autoencoder)
         ├── 03_stability_and_null.py            <- 100-bootstrap Jaccard stability & permutation null baseline
-        └── 04_evaluate_test_and_disparities.py <- Held-out test evaluation (n=1,055), clinical & disparity tests
+        ├── 04_evaluate_test_and_disparities.py <- Held-out test evaluation (n=1,055), clinical & disparity tests
+        ├── cli.py                                <- Unified CLI entry point (`cardiometabolic-pheno`)
+        └── app.py                                <- Interactive Streamlit phenotyping & fairness dashboard
 ```
 
 ---

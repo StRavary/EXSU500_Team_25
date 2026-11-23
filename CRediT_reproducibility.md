@@ -80,3 +80,9 @@ uv run python src/project_cluster/03_stability_and_null.py
 uv run python src/project_cluster/04_evaluate_test_and_disparities.py
 ```
 *(If using a standard virtual environment instead of `uv`, omit `uv run` and invoke `python src/project_cluster/...` directly.)*
+
+# Run the entire 4-stage pipeline sequentially
+uv run cardiometabolic-pheno all
+
+# Launch the interactive Streamlit phenotyping & fairness dashboard
+uv run cardiometabolic-pheno ui
