@@ -1,0 +1,41 @@
+# Virtual environments (uv / Python)
+.venv/
+venv/
+env/
+.python-version
+
+# Python & Jupyter artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+
+# R artifacts
+.Rhistory
+.RData
+.Rproj.user/
+
+# Course rule: Do not commit datasets or large model weights (>100 MB)
+data/
+*.csv
+*.rds
+*.xpt
+*.parquet
+*.pt
+*.pth
+*.ckpt
+*.h5
+
+# Local backup & temporary files
+README.local.md
+*.bak
+*.tmp
+.DS_Store
+
+# IDE & Environment variables
+.vscode/
+.idea/
+.env
