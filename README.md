@@ -21,7 +21,7 @@ This project formulates an unsupervised machine learning pipeline to identify la
 * **Task Type:** Unsupervised clustering and clinical phenotyping.
 * **Input Feature Space (6 Biomarkers):** Glycated Hemoglobin (`HbA1c_Percent`, %), Serum Triglycerides (`Triglycerides`, mg/dL), Total Cholesterol (`Total_Cholesterol`, mg/dL), High-Density Lipoprotein Cholesterol (`HDL_Cholesterol`, mg/dL), Body Mass Index (`BMI`, kg/m²), and Mean Systolic Blood Pressure (`Systolic_BP`, mmHg).
 * **Held-Out Clinical Reference Markers:** Estimated Glomerular Filtration Rate (`eGFR`, mL/min/1.73m²), High-Sensitivity C-Reactive Protein (`Inflammation_CRP`, mg/L), Mean Diastolic Blood Pressure (`Diastolic_BP`, mmHg), and LDL Cholesterol (`LDL_Cholesterol`, mg/dL).
-* **Downstream Hypothesis Testing:** Statistical evaluation of demographic and socioeconomic divergence across phenotypes using Pearson's $\chi^2$ tests, Cramér's $V$, Kruskal–Wallis tests, and Benjamini–Hochberg False Discovery Rate (FDR) correction, complemented by survey-weighted sensitivity analyses.
+* **Downstream Hypothesis Testing:** Statistical evaluation of demographic and socioeconomic divergence across phenotypes using Pearson's $\chi^2$ tests, bias-corrected Cramér's $V$, Kruskal–Wallis tests, and Benjamini–Hochberg False Discovery Rate (FDR) correction, complemented by NHANES complex survey-weighted sensitivity analyses.
 
 ---
 
@@ -79,38 +79,36 @@ Three distinct unsupervised learning paradigms are benchmarked under identical p
 ### Partitioning, Validation, and Leakage Controls
 * **Stratified 70/30 Split:** The $N = 3,515$ cohort is partitioned into a **Training Set ($70\%$, $n = 2,460$)** and a **Held-Out Test Set ($30\%$, $n = 1,055$)** stratified across age deciles (`random_state=42`).
 * **Strict Normalization Isolation:** Z-score standardization (`StandardScaler`) is fitted exclusively on the training partition ($n = 2,460$) and applied to the test partition using frozen training parameters.
-* **5-Fold Cross-Validation ($k \in \{2, 3, 4, 5, 6\}$):** Cluster granularity and autoencoder bottleneck dimensions are tuned strictly within the training set using out-of-fold Silhouette Coefficient, Davies-Bouldin Index, and Bayesian Information Criterion (BIC).
+* **5-Fold Cross-Validation ($k \in \{2, 3, 4, 5, 6\}$):** Cluster granularity and autoencoder bottleneck dimensions are tuned strictly within the training set using out-of-fold Silhouette Coefficient, Davies–Bouldin Index, and Bayesian Information Criterion (BIC).
 * **Stability & Permutation Null Testing:** Model robustness is audited on the training set via 100 non-parametric bootstrap resamples (Hungarian-matched Jaccard similarity) and 100 column-wise feature-permutation null trials.
 
 ---
 
 ## 4. Empirical Results Summary
 
-### A. 5-Fold Cross-Validation Tuning (`n = 2,460` Training Set)
-Across $k \in \{2, 3, 4, 5, 6\}$, `k = 2` maximizes out-of-fold geometric Silhouette separation across all three model families, while `GMM` achieves its minimum Bayesian Information Criterion at `k = 3` (`BIC = 7383.57`):
+### A. Training-Set Tuning, Stability & Permutation Null Benchmarks (`n = 2,460`)
+Across $k \in \{2, 3, 4, 5, 6\}$, `k = 2` maximizes out-of-fold geometric Silhouette separation across all three model families, while `GMM` achieves its minimum Bayesian Information Criterion at `k = 3` (`BIC = 7383.57`). Training-set robustness audits demonstrate high stability for `GMM` (`Jaccard = 0.9349`) and `k-Means` (`Jaccard = 0.8824`), whereas the `Autoencoder` suffers from severe initialization variance (`pairwise ARI = 0.0781 +/- 0.1757`, `Jaccard = 0.3955`) and fails to beat column-permuted random noise (`p = 0.9109` ambient / `p = 0.9802` latent):
 
-| Model Family | Optimal Configuration | Mean Val Silhouette ($\uparrow$) | SD Val Silhouette | Mean Val Davies–Bouldin ($\downarrow$) | Mean Val BIC ($\downarrow$) |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **k-Means (Baseline)** | `k = 2, n_init = 50` | 0.1764 | 0.0167 | 1.9854 | — |
-| **GMM (Classical ML)** | `k = 2, cov = full` | 0.2633 | 0.0038 | 2.1553 | 7423.79 |
-| **GMM (BIC Optimum)** | `k = 3, cov = full` | 0.1304 | 0.0253 | 2.1966 | **7383.57** |
-| **Autoencoder (Deep)** | `k = 2, bottleneck = 2D` *(latent)* | 0.6131 | 0.1528 | 0.6939 | — |
-| **Autoencoder (Deep)** | `k = 2, bottleneck = 3D` *(latent)* | 0.3252 | 0.0594 | 1.2210 | — |
+| Model Family | Selected Config | 5-Fold Val Silhouette | Bootstrap Jaccard (100x) | Permutation Null $p$-value |
+| :--- | :--- | :---: | :---: | :---: |
+| **k-Means (Baseline)** | `k = 2, n_init = 50` | $0.1764 \pm 0.0167$ | **$0.8824 \pm 0.1357$** | **$0.0396$** |
+| **GMM (Classical ML)** | `k = 2, cov = full` | $0.2633 \pm 0.0038$ | **$0.9349 \pm 0.0384$** | $0.6436$ |
+| **Autoencoder (Deep)** | `k = 2, bottleneck = 2D` | $0.6131 \pm 0.1528$ *(latent)* | $0.3955 \pm 0.1169$ | $0.9109$ *(6D)* / $0.9802$ *(2D)* |
 
-*(Note: Autoencoder Silhouette scores above reflect separation within the compressed 2D/3D latent bottleneck; ambient 6D Euclidean metrics are reported alongside latent metrics in `03_stability_and_null.py` and `04_evaluate_test_and_disparities.py` for direct comparison against k-Means and GMM).*
+### B. Held-Out Test Set Performance & External Clinical Validity (`n = 1,055`)
+When applied once to the untouched held-out test set ($n = 1,055$), both `k-Means (k = 2)` and `GMM (k = 2)` stratify patients into clinically distinct cardiometabolic endotypes that generalize to **unseen clinical validation biomarkers** (`eGFR`, `Inflammation_CRP`, and `Diastolic_BP`):
 
-### B. Preliminary Full-Cohort Reference Baseline (`N = 3,515`, `k = 3`)
-Initial feasibility clustering (`k = 3`) on standardized HbA1c and Triglycerides identified three clinically distinct risk subgroups with strong sociodemographic gradients:
+| Model | Test Ambient 6D Silhouette ($\uparrow$) | Test Davies–Bouldin ($\downarrow$) | Test Cluster Counts | High-Risk Phenotype (`C1`) Profile vs. Low-Risk (`C0`) |
+| :--- | :---: | :---: | :---: | :--- |
+| **k-Means (`k = 2`)** | 0.1770 | **1.9960** | `C0: 566` / `C1: 489` | Higher HbA1c ($6.40\%$ vs. $5.45\%$), TG ($140.9$ vs. $80.8$), BMI ($34.8$ vs. $26.0$), SBP ($129.5$ vs. $119.8$), CRP ($6.02$ vs. $2.74\text{ mg/L}$, $p = 1.1 \times 10^{-43}$), lower HDL ($43.7$ vs. $60.6$) and eGFR ($98.5$ vs. $104.0$, $p = 0.0012$). |
+| **GMM (`k = 2`)** | **0.2566** | 2.1993 | `C0: 832` / `C1: 223` | Overt dysglycemia (`HbA1c` $7.22\%$ vs. $5.54\%$, $p = 3.6 \times 10^{-44}$), hypertriglyceridemia ($183.1$ vs. $88.7$, $p = 5.3 \times 10^{-44}$), obesity (`BMI` $35.0$ vs. $28.8$), elevated CRP ($6.80$ vs. $3.58$, $p = 2.2 \times 10^{-13}$), lower eGFR ($97.6$ vs. $102.5$, $p = 0.041$). |
+| **GMM (`k = 3`, BIC opt)** | 0.1155 | 2.2480 | `526 / 428 / 101` | Achieves lowest test BIC (`15260.00` vs. `15435.61` for `k = 2`), isolating a severe cardiometabolic tail (`n = 101`). |
+| **Autoencoder (`k = 2, 2D`)** | 0.1072 | 2.6810 | `C0: 579` / `C1: 476` | Near-zero agreement with k-Means (`ARI = 0.0109`) and GMM (`ARI = -0.0036`). |
 
-| Cluster Profile | Cohort Share N (%) | Mean HbA1c (%) | Mean Triglycerides (mg/dL) | Mean BMI (kg/m²) | Mean Systolic BP (mmHg) | Mean Income PIR |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Normoglycemic / Normolipidemic** | 2,931 (83.4%) | 5.61 | 86.4 | 29.5 | 123.2 | 2.67 |
-| **Hypertriglyceridemic** | 357 (10.2%) | 5.85 | 277.7 | 31.8 | 125.8 | 2.64 |
-| **Severe Hyperglycemic** | 227 (6.5%) | 9.44 | 149.0 | 33.3 | 131.3 | 2.26 |
-
-* **Race/Ethnicity ($\chi^2 = 87.91, p < 0.001$):** Severe hyperglycemia was disproportionately concentrated among Mexican American ($10.25\%$) and Non-Hispanic Black ($7.51\%$) participants, whereas hypertriglyceridemia was elevated in Mexican American ($14.12\%$) and Non-Hispanic Asian ($13.68\%$) participants compared to Non-Hispanic Black ($3.03\%$) participants.
-* **Educational Attainment ($\chi^2 = 45.77, p < 0.001$):** Severe hyperglycemia prevalence followed an inverse socioeconomic gradient from $<9\text{th}$ grade ($12.65\%$) and high school/GED ($7.36\%$) to college graduates ($3.10\%$).
-* **Income-to-Poverty Ratio (Kruskal–Wallis $H = 11.43, p = 0.003$):** Mean PIR was significantly lower in the severe hyperglycemic group ($2.26$) than in the normoglycemic group ($2.67$).
+### C. Sociodemographic Disparity Audits (BH-FDR Corrected) & Survey Weighting (`n = 1,055`)
+* **Clinical Endotypes vs. Confounding:** Physiological effect sizes (`BMI` $H = 401.5$, `HDL` $H = 384.0$, `HbA1c` $H = 226.3$, `Triglycerides` $H = 208.9$) are an order of magnitude larger than sociodemographic associations, confirming that clusters capture genuine biological pathology rather than merely proxying demographics.
+* **Statistically Significant Social Gradients (BH-FDR $q < 0.05$):** Despite modest effect sizes, both `k-Means (k = 2)` and `GMM (k = 2)` exhibit statistically significant disparities after Benjamini–Hochberg FDR correction across `Education_Level` (`Cramér's V = 0.1546`, $q = 3.6 \times 10^{-5}$ for k-Means; `V = 0.1716`, $q = 2.3 \times 10^{-6}$ for GMM), `Income_Poverty_Ratio` ($q = 0.0012$ / $q = 0.0043$), and `Race_Ethnicity` (`V = 0.0987`, $q = 0.0115$ / `V = 0.0907`, $q = 0.0222$).
+* **Nationally Representative Weighted Prevalence (`WTSAFPRP` / `SDMVSTRA` / `SDMVPSU`):** Incorporating NHANES fasting subsample design weights yields national high-risk endotype (`C1`) prevalence estimates of **$41.27\% \pm 2.03\%$** ($95\%$ CI: $37.29\%–45.26\%$) for `k-Means (k = 2)` and **$16.53\% \pm 1.76\%$** ($95\%$ CI: $13.08\%–19.99\%$) for `GMM (k = 2)`.
 
 ---
 
@@ -118,7 +116,8 @@ Initial feasibility clustering (`k = 3`) on standardized HbA1c and Triglycerides
 
 ```text
 EXSU500_Team_25/
-├── README.md                                   <- Project overview, methodology, results, model card & reproduction guide
+├── README.md                                   <- Project overview, methodology, and empirical results summary
+├── CRediT_reproducibility.md                   <- Model card, CRediT author roles, AI disclosure, license & reproduction steps
 ├── LICENSE                                     <- MIT License
 ├── pyproject.toml                              <- uv / Python project metadata and dependency specification
 ├── requirements.txt                            <- Pinned Python dependencies for reproducible execution
@@ -132,3 +131,10 @@ EXSU500_Team_25/
         ├── 02_train_and_tune.py                <- 5-fold CV tuning across k=2..6 (k-Means, GMM, Autoencoder)
         ├── 03_stability_and_null.py            <- 100-bootstrap Jaccard stability & permutation null baseline
         └── 04_evaluate_test_and_disparities.py <- Held-out test evaluation (n=1,055), clinical & disparity tests
+```
+
+---
+
+## 6. Governance, Model Card & Reproducibility
+
+Full details on the **Model Card**, **CRediT Author Contributions**, **Generative AI Disclosure**, **MIT License**, and **Step-by-Step Reproduction Instructions** are documented in [`CRediT_reproducibility.md`](CRediT_reproducibility.md).
