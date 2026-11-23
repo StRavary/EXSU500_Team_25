@@ -38,4 +38,4 @@ README.local.md
 # IDE & Environment variables
 .vscode/
 .idea/
-.env
+.envartifacts/
