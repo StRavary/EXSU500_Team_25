@@ -1,0 +1,48 @@
+========================================================================
+NHANES ANNOTATED DATA CURATION MANIFEST LOG
+Generated: 2026-10-03 16:45:20.551847 
+========================================================================
+
+--- ARCHIVE REPLICABILITY ENGINE DETAILS ---
+               _                                
+platform       x86_64-w64-mingw32               
+arch           x86_64                           
+os             mingw32                          
+crt            ucrt                             
+system         x86_64, mingw32                  
+status                                          
+major          4                                
+minor          6.1                              
+year           2026                             
+month          06                               
+day            24                               
+svn rev        90187                            
+language       R                                
+version.string R version 4.6.1 (2026-06-24 ucrt)
+nickname       Happy Hop                        
+
+Package nhanesA version compiled: 1.4.1 
+
+--- PIPELINE TARGET MISSINGNESS ACCOUNTING (Retention Audit) ---
+                  ID        HbA1c_Percent                  BMI 
+                   0                 5823                 2423 
+                eGFR    Total_Cholesterol      HDL_Cholesterol 
+                6085                 4732                 4732 
+       Triglycerides      LDL_Cholesterol          Systolic_BP 
+               10910                10943                 5207 
+        Diastolic_BP     Inflammation_CRP            Age_Years 
+                5207                 3946                    0 
+              Gender       Race_Ethnicity Income_Poverty_Ratio 
+                   0                    0                 2201 
+     Education_Level 
+                6328 
+
+--- SAMPLE DATA BOUNDS PROFILE (Scrubbing Validation) ---
+      BMI        HbA1c_Percent         eGFR          Systolic_BP    
+ Min.   :11.90   Min.   : 2.800   Min.   :  2.958   Min.   : 72.33  
+ 1st Qu.:20.40   1st Qu.: 5.200   1st Qu.: 83.388   1st Qu.:106.00  
+ Median :25.80   Median : 5.500   Median :101.225   Median :116.67  
+ Mean   :26.66   Mean   : 5.766   Mean   : 99.911   Mean   :119.81  
+ 3rd Qu.:31.40   3rd Qu.: 5.900   3rd Qu.:118.455   3rd Qu.:130.00  
+ Max.   :92.30   Max.   :16.200   Max.   :194.035   Max.   :218.67  
+ NAs    :2423    NAs    :5823     NAs    :6085      NAs    :5207    
