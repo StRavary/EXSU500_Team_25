@@ -263,7 +263,10 @@ def main() -> None:
             ),
             "test_sil_latent": np.nan,
             "test_bic": np.nan,
-            "cluster_counts": {int(k): int(v) for k, v in zip(*np.unique(labels_km, return_counts=True))},
+            "cluster_counts": {
+                int(k): int(v)
+                for k, v in zip(*np.unique(labels_km, return_counts=True))
+            },
         },
         {
             "model": f"GMM (k={selected['GMM']['k']}, Silhouette opt)",
@@ -275,7 +278,10 @@ def main() -> None:
             ),
             "test_sil_latent": np.nan,
             "test_bic": round(float(gmm_model.bic(X_test)), 2),
-            "cluster_counts": {int(k): int(v) for k, v in zip(*np.unique(labels_gmm, return_counts=True))},
+            "cluster_counts": {
+                int(k): int(v)
+                for k, v in zip(*np.unique(labels_gmm, return_counts=True))
+            },
         },
         {
             "model": "GMM (k=3, BIC opt sensitivity)",
@@ -287,7 +293,10 @@ def main() -> None:
             ),
             "test_sil_latent": np.nan,
             "test_bic": round(float(gmm_k3.bic(X_test)), 2),
-            "cluster_counts": {int(k): int(v) for k, v in zip(*np.unique(labels_gmm_k3, return_counts=True))},
+            "cluster_counts": {
+                int(k): int(v)
+                for k, v in zip(*np.unique(labels_gmm_k3, return_counts=True))
+            },
         },
         {
             "model": f"Autoencoder (k={selected['Autoencoder']['k']}, dim={b_dim})",
@@ -297,7 +306,10 @@ def main() -> None:
             ),
             "test_sil_latent": round(float(silhouette_score(Z_test, labels_ae)), 4),
             "test_bic": np.nan,
-            "cluster_counts": {int(k): int(v) for k, v in zip(*np.unique(labels_ae, return_counts=True))},
+            "cluster_counts": {
+                int(k): int(v)
+                for k, v in zip(*np.unique(labels_ae, return_counts=True))
+            },
         },
     ]
     perf_df = pd.DataFrame(perf_rows)
